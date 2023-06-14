@@ -3,7 +3,6 @@ package job.hunt.potteredia.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-
 @Serializable
 data class Character(
     val id: String,

@@ -9,16 +9,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.hilt.android.AndroidEntryPoint
 import job.hunt.potteredia.model.Character
+import job.hunt.potteredia.model.Wand
 import job.hunt.potteredia.network.HarryPotterApi
 import job.hunt.potteredia.ui.theme.PotterpeidaTheme
 import kotlinx.coroutines.Dispatchers
@@ -26,15 +33,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.unit.dp
-import job.hunt.potteredia.model.Wand
 import retrofit2.Retrofit
-
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -48,7 +47,8 @@ class MainActivity : ComponentActivity() {
                 val chars by characters.collectAsState(initial = emptyList())
                 // A surface container using the 'background' color from the theme
                 Surface(
-                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     LazyColumn {
                         items(chars) { character ->
@@ -104,8 +104,6 @@ fun CharacterCard(character: Character) {
             Text("Actor:${character.actor}")
         }
     }
-
-
 }
 
 @Preview(showBackground = true)
