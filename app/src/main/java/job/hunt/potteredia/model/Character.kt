@@ -29,13 +29,6 @@ data class Character(
     val image: String
 )
 
-@Serializable
-data class Wand(
-    val wood: String,
-    val core: String,
-    val length: Float?
-)
-
 enum class Species {
     Human,
     HalfGiant,
