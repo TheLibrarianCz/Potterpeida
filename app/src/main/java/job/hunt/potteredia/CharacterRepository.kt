@@ -6,10 +6,12 @@ import job.hunt.potteredia.model.Character
 import job.hunt.potteredia.network.HarryPotterApiClient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,6 +39,10 @@ class CharacterRepository @Inject constructor(
         applicationScope.launch(ioDispatcher) {
             _characters.value = harryPotterApiClient.getAllCharacters()
         }
+    }
+
+    suspend fun fetchCharacterData(characterId: String): Character = withContext(Dispatchers.IO) {
+        TODO()
     }
 }
 

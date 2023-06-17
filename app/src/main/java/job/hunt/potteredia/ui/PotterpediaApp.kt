@@ -41,7 +41,10 @@ fun PotterpediaNavGraph(
 
         composable(
             route = PotterpediaDestinations.CHARACTER_ROUTE,
-            arguments = listOf(navArgument("characterId") { type = NavType.StringType })
+            arguments = listOf(
+                navArgument("characterId") { type = NavType.StringType },
+                navArgument("characterName") { type = NavType.StringType }
+            )
         ) { backStackEntry ->
             CharacterScreen(
                 characterViewModel = hiltViewModel(),
@@ -53,5 +56,5 @@ fun PotterpediaNavGraph(
 
 object PotterpediaDestinations {
     const val HOME_ROUTE = "home"
-    const val CHARACTER_ROUTE = "character/{characterId}"
+    const val CHARACTER_ROUTE = "character/{characterId}?characterName={characterName}"
 }

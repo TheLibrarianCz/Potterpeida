@@ -1,6 +1,5 @@
 package job.hunt.potteredia
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,7 +25,7 @@ class MainViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             characterRepository.characters.collect { charactersResult ->
-                Log.d("MainViewModel", charactersResult.toString())
+                Timber.d(charactersResult.toString())
                 _uiState.value = if (charactersResult.isSuccess) {
                     handleSuccessResult(charactersResult)
                 } else {
@@ -43,18 +43,22 @@ class MainViewModel @Inject constructor(
     }
 
     private fun handleSuccessResult(charactersResult: Result<List<Character>>): MainUiState {
-        Log.d("MainViewModel", "handleSuccessResult")
+        Timber.d("handleSuccessResult")
         val characters = charactersResult.getOrNull()
 
         return if (characters == null) {
             MainUiState.NoArticles(errorMessage = "Something went wrong!")
         } else {
-            MainUiState.HasCharacters(characters = characters)
+            MainUiState.HasCharacters(
+                characters = characters
+                    .sortedBy { character -> character.name }
+                    .groupBy { character -> character.name.first() }
+            )
         }
     }
 
     private fun handleFailureResult(charactersResult: Result<List<Character>>): MainUiState {
-        Log.d("MainViewModel", "handleFailureResult")
+        Timber.d("handleFailureResult")
         val exception = charactersResult.exceptionOrNull()
 
         return if (exception is UnInitialized) {
@@ -74,5 +78,5 @@ class MainViewModel @Inject constructor(
 sealed class MainUiState {
     object Loading : MainUiState()
     data class NoArticles(val errorMessage: String) : MainUiState()
-    data class HasCharacters(val characters: List<Character>) : MainUiState()
+    data class HasCharacters(val characters: Map<Char, List<Character>>) : MainUiState()
 }
