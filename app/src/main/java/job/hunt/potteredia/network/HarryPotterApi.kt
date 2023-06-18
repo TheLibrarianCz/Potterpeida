@@ -11,7 +11,7 @@ interface HarryPotterApi {
     suspend fun getAllCharacters(): Response<List<Character>>
 
     @GET("api/character/{id}")
-    suspend fun getCharacter(@Path("id") id: String): Response<String>
+    suspend fun getCharacter(@Path("id") id: String): Response<Character>
 
     @GET("api/characters/students")
     suspend fun getAllStudents(): Response<String>

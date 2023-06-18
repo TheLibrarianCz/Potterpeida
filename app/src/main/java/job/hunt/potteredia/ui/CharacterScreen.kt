@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package job.hunt.potteredia.ui
 
 import androidx.compose.foundation.background
@@ -12,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -32,6 +29,7 @@ import androidx.navigation.NavController
 import job.hunt.potteredia.CharacterUiState
 import job.hunt.potteredia.CharacterViewModel
 import job.hunt.potteredia.R
+import job.hunt.potteredia.houseColors
 import job.hunt.potteredia.model.Character
 
 @Composable
@@ -68,7 +66,13 @@ fun CharacterScreenUiState(uiState: CharacterUiState) {
     when (uiState) {
         is CharacterUiState.Loading -> CharacterScreenUiLoading()
         is CharacterUiState.Loaded -> CharacterScreenUiLoaded(uiState.character)
+        CharacterUiState.Error -> CharacterScreenError()
     }
+}
+
+@Composable
+fun CharacterScreenError() {
+    ErrorCommon(infoMessage = stringResource(id = R.string.something_went_wrong))
 }
 
 @Composable
@@ -103,7 +107,7 @@ private fun CharacterRow(character: Character) {
     ) {
         CharacterImage(
             imageUrl = character.image,
-            borderColor = HouseColors(character) ?: MaterialTheme.colorScheme.primary,
+            borderColor = houseColors(character) ?: MaterialTheme.colorScheme.primary,
             width = 128,
             height = 128
         )

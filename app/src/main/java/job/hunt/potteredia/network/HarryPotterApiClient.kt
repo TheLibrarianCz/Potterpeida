@@ -24,8 +24,18 @@ class HarryPotterApiClient @Inject constructor(private val harryPotterApi: Harry
         }
     }
 
-    suspend fun getCharacter(id: String): Result<String> = withContext(Dispatchers.IO) {
-        TODO("Not yet implemented")
+    suspend fun getCharacter(id: String): Result<Character> = withContext(Dispatchers.IO) {
+        try {
+            val charactersCall = harryPotterApi.getCharacter(id).body()
+
+            if (charactersCall == null) {
+                Result.failure(NoContentException())
+            } else {
+                Result.success(charactersCall)
+            }
+        } catch (e: IOException) {
+            Result.failure(e)
+        }
     }
 
     suspend fun getAllStudents(): Result<String> {
@@ -45,5 +55,4 @@ class HarryPotterApiClient @Inject constructor(private val harryPotterApi: Harry
     }
 }
 
-class NoInternetException : IOException()
 class NoContentException : IOException()

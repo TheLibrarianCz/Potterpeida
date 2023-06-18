@@ -2,6 +2,7 @@ package job.hunt.potteredia.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.SnackbarDuration
@@ -14,33 +15,39 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun LoadingCommon() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    PlainCenteredContent {
         CircularProgressIndicator()
     }
 }
 
 @Composable
-fun NoInternetCommon(
+fun ErrorCommon(
     infoMessage: String,
-    errorMessage: String,
-    snackbarHostState: SnackbarHostState
+    errorMessage: String? = null,
+    snackbarHostState: SnackbarHostState? = null
+) {
+    PlainCenteredContent {
+        Text(text = infoMessage)
+
+        if (snackbarHostState != null && errorMessage != null) {
+            LaunchedEffect(snackbarHostState) {
+                snackbarHostState.showSnackbar(
+                    message = errorMessage,
+                    duration = SnackbarDuration.Indefinite
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlainCenteredContent(
+    content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = infoMessage)
-
-        LaunchedEffect(snackbarHostState) {
-            snackbarHostState.showSnackbar(
-                message = errorMessage,
-                duration = SnackbarDuration.Indefinite
-            )
-        }
-    }
+        horizontalAlignment = Alignment.CenterHorizontally,
+        content = content
+    )
 }

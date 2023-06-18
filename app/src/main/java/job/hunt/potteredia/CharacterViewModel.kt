@@ -14,8 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CharacterViewModel @Inject constructor(
-    private val characterRepository: CharacterRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val characterRepository: CharacterRepository
 ) : ViewModel() {
 
     private val characterId: String = checkNotNull(savedStateHandle["characterId"])
@@ -28,8 +28,23 @@ class CharacterViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val char = characterRepository.fetchCharacterData(characterId)
-            _characterUiState.value = CharacterUiState.Loaded(char)
+            val fetchResult = characterRepository.fetchCharacterData(characterId)
+
+            _characterUiState.value = translateFetchResult(fetchResult)
+        }
+    }
+
+    private fun translateFetchResult(fetchResult: Result<Character>): CharacterUiState {
+        return if (fetchResult.isSuccess) {
+            val data = fetchResult.getOrNull()
+
+            if (data != null) {
+                CharacterUiState.Loaded(data)
+            } else {
+                CharacterUiState.Error
+            }
+        } else {
+            CharacterUiState.Error
         }
     }
 }
@@ -37,5 +52,8 @@ class CharacterViewModel @Inject constructor(
 sealed class CharacterUiState {
 
     object Loading : CharacterUiState()
+
     data class Loaded(val character: Character) : CharacterUiState()
+
+    object Error : CharacterUiState()
 }

@@ -111,7 +111,7 @@ fun MainScreenNoArticles(
     uiState: MainUiState.NoArticles,
     snackbarHostState: SnackbarHostState
 ) {
-    NoInternetCommon(
+    ErrorCommon(
         infoMessage = stringResource(id = R.string.network_error_message),
         errorMessage = uiState.errorMessage,
         snackbarHostState = snackbarHostState
