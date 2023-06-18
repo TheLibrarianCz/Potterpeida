@@ -8,6 +8,7 @@ import job.hunt.potteredia.network.ConnectionManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -18,20 +19,25 @@ class MainViewModel @Inject constructor(
     private val characterRepository: CharacterRepository
 ) : ViewModel() {
 
+    private var filterPhotoOnly: MutableStateFlow<Boolean> = MutableStateFlow(true)
+
     private val _uiState: MutableStateFlow<MainUiState> = MutableStateFlow(MainUiState.Loading)
 
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            characterRepository.characters.collect { charactersResult ->
-                Timber.d(charactersResult.toString())
-                _uiState.value = if (charactersResult.isSuccess) {
-                    handleSuccessResult(charactersResult)
-                } else {
-                    handleFailureResult(charactersResult)
+            characterRepository.characters
+                .combine(filterPhotoOnly) { result: Result<List<Character>>, filter: Boolean ->
+                    result to filter
+                }.collect { (charactersResult: Result<List<Character>>, filter: Boolean) ->
+
+                    _uiState.value = if (charactersResult.isSuccess) {
+                        handleSuccessResult(charactersResult, filter)
+                    } else {
+                        handleFailureResult(charactersResult)
+                    }
                 }
-            }
         }
         viewModelScope.launch {
             connectionManager.isConnected.collect {
@@ -42,15 +48,25 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun handleSuccessResult(charactersResult: Result<List<Character>>): MainUiState {
+    private fun handleSuccessResult(
+        charactersResult: Result<List<Character>>,
+        filter: Boolean
+    ): MainUiState {
         Timber.d("handleSuccessResult")
         val characters = charactersResult.getOrNull()
 
         return if (characters == null) {
             MainUiState.NoArticles(errorMessage = "Something went wrong!")
         } else {
+            val filtered = if (filter) {
+                characters.filter { it.image.isNotBlank() }
+            } else {
+                characters
+            }
+
             MainUiState.HasCharacters(
-                characters = characters
+                photoOnly = filter,
+                characters = filtered
                     .sortedBy { character -> character.name }
                     .groupBy { character -> character.name.first() }
             )
@@ -73,10 +89,17 @@ class MainViewModel @Inject constructor(
         !connectionManager.isCurrentlyConnected -> "No internet connection."
         else -> "Something went wrong!"
     }
+
+    fun onFilterChange(newValue: Boolean) {
+        filterPhotoOnly.value = newValue
+    }
 }
 
 sealed class MainUiState {
     object Loading : MainUiState()
     data class NoArticles(val errorMessage: String) : MainUiState()
-    data class HasCharacters(val characters: Map<Char, List<Character>>) : MainUiState()
+    data class HasCharacters(
+        val photoOnly: Boolean,
+        val characters: Map<Char, List<Character>>
+    ) : MainUiState()
 }

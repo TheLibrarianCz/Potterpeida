@@ -12,7 +12,6 @@ class HarryPotterApiClient @Inject constructor(private val harryPotterApi: Harry
 
     suspend fun getAllCharacters(): Result<List<Character>> = withContext(Dispatchers.IO) {
         try {
-            // Check internet here, if not then -> NoInternetException
             val allCharactersCall = harryPotterApi.getAllCharacters().body()
 
             if (allCharactersCall == null) {
@@ -25,7 +24,7 @@ class HarryPotterApiClient @Inject constructor(private val harryPotterApi: Harry
         }
     }
 
-    suspend fun getCharacter(id: String): Result<String> {
+    suspend fun getCharacter(id: String): Result<String> = withContext(Dispatchers.IO) {
         TODO("Not yet implemented")
     }
 

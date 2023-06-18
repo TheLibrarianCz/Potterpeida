@@ -42,7 +42,8 @@ class CharacterRepository @Inject constructor(
     }
 
     suspend fun fetchCharacterData(characterId: String): Character = withContext(Dispatchers.IO) {
-        TODO()
+        val result = _characters.value
+        _characters.value.getOrNull()!!.find { character: Character -> character.id == characterId }!!
     }
 }
 

@@ -6,7 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import retrofit2.Retrofit
 import javax.inject.Singleton
 
@@ -20,7 +20,7 @@ object NetworkModule {
         Retrofit.Builder()
             .baseUrl("https://hp-api.onrender.com/")
             .addConverterFactory(
-                Json.asConverterFactory(MediaType.parse("application/json")!!)
+                Json.asConverterFactory("application/json".toMediaTypeOrNull()!!)
             )
             .build()
 

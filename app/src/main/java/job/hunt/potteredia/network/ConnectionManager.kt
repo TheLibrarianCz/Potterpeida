@@ -89,11 +89,11 @@ class ConnectionManager @Inject constructor(
             Timber.v("$TAG Successful check for the connectivity.")
             true
         } catch (e: IOException) {
-            /*when {
+            when {
                 successfulPing -> Timber.e("$TAG IO Exception while trying to close the socket.")
                 socketCreated -> Timber.e("$TAG Could not reach internet.")
                 else -> Timber.e("$TAG Unspecified IO Exception($e).")
-            }*/
+            }
             false
         }
     }
