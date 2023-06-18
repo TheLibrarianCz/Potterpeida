@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">Potterpedia</string>
     <string name="network_error_message">Could not Accio the information</string>
+    <string name="no_internet_error_message">No internet connection.</string>
     <string name="portrayed_by">portrayed by</string>
     <string name="also_known_as">also known as</string>
     <string name="up">Up</string>
-    <string name="something_went_wrong">You seem to have ran out of Liquid Luck and something bad happened</string>
+    <string name="something_went_wrong">You seem to have ran out of Felix Felicis and something bad happened</string>
 </resources>

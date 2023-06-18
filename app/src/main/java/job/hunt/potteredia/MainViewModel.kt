@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import job.hunt.potteredia.model.Character
 import job.hunt.potteredia.network.ConnectionManager
+import job.hunt.potteredia.network.NoInternetException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,7 +20,7 @@ class MainViewModel @Inject constructor(
     private val characterRepository: CharacterRepository
 ) : ViewModel() {
 
-    private var filterPhotoOnly: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    private val filterPhotoOnly: MutableStateFlow<Boolean> = MutableStateFlow(true)
 
     private val _uiState: MutableStateFlow<MainUiState> = MutableStateFlow(MainUiState.Loading)
 
@@ -40,8 +41,8 @@ class MainViewModel @Inject constructor(
                 }
         }
         viewModelScope.launch {
-            connectionManager.isConnected.collect {
-                if (_uiState.value is MainUiState.NoArticles) {
+            connectionManager.isConnected.collect { connected ->
+                if (_uiState.value is MainUiState.NoInternet && connected) {
                     characterRepository.reload()
                 }
             }
@@ -56,7 +57,7 @@ class MainViewModel @Inject constructor(
         val characters = charactersResult.getOrNull()
 
         return if (characters == null) {
-            MainUiState.NoArticles(errorMessage = "Something went wrong!")
+            MainUiState.Error
         } else {
             val filtered = if (filter) {
                 characters.filter { it.image.isNotBlank() }
@@ -75,19 +76,11 @@ class MainViewModel @Inject constructor(
 
     private fun handleFailureResult(charactersResult: Result<List<Character>>): MainUiState {
         Timber.d("handleFailureResult")
-        val exception = charactersResult.exceptionOrNull()
-
-        return if (exception is UnInitialized) {
-            MainUiState.Loading
-        } else {
-            MainUiState.NoArticles(errorMessage = mapExceptionToErrorMessage(exception))
+        return when (charactersResult.exceptionOrNull()) {
+            is UnInitialized -> MainUiState.Loading
+            is NoInternetException -> MainUiState.NoInternet
+            else -> MainUiState.Error
         }
-    }
-
-    private fun mapExceptionToErrorMessage(exception: Throwable?): String = when {
-        exception == null -> "Could not reach the API"
-        !connectionManager.isCurrentlyConnected -> "No internet connection."
-        else -> "Something went wrong!"
     }
 
     fun onFilterChange(newValue: Boolean) {
@@ -97,7 +90,8 @@ class MainViewModel @Inject constructor(
 
 sealed class MainUiState {
     object Loading : MainUiState()
-    data class NoArticles(val errorMessage: String) : MainUiState()
+    object NoInternet : MainUiState()
+    object Error : MainUiState()
     data class HasCharacters(
         val photoOnly: Boolean,
         val characters: Map<Char, List<Character>>

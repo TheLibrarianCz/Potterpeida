@@ -1,4 +1,8 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@file:OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class,
+    ExperimentalFoundationApi::class
+)
 
 package job.hunt.potteredia.ui
 
@@ -100,20 +104,27 @@ fun MainScreenUiState(
     onCharacterClick: (Pair<String, String>) -> Unit
 ) {
     when (uiState) {
-        is MainUiState.NoArticles -> MainScreenNoArticles(uiState, snackbarHostState)
+        is MainUiState.Error -> MainScreenError()
+        is MainUiState.NoInternet -> MainScreenNoInternet(snackbarHostState)
         is MainUiState.HasCharacters -> MainScreenHasCharacters(uiState, onCharacterClick)
         MainUiState.Loading -> MainScreenLoading()
     }
 }
 
 @Composable
-fun MainScreenNoArticles(
-    uiState: MainUiState.NoArticles,
+fun MainScreenError() {
+    ErrorCommon(
+        infoMessage = stringResource(id = R.string.something_went_wrong)
+    )
+}
+
+@Composable
+fun MainScreenNoInternet(
     snackbarHostState: SnackbarHostState
 ) {
     ErrorCommon(
         infoMessage = stringResource(id = R.string.network_error_message),
-        errorMessage = uiState.errorMessage,
+        errorMessage = stringResource(id = R.string.no_internet_error_message),
         snackbarHostState = snackbarHostState
     )
 }
@@ -251,8 +262,7 @@ fun PreviewMainScreenLoading() {
 @Composable
 fun PreviewMainScreenNoArticles() {
     val snackbarHostState = remember { SnackbarHostState() }
-    MainScreenNoArticles(
-        uiState = MainUiState.NoArticles(errorMessage = "Out of mana"),
+    MainScreenNoInternet(
         snackbarHostState = snackbarHostState
     )
 }
